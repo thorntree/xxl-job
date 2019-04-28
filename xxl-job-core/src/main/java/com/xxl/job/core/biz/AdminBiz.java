@@ -5,6 +5,7 @@ import com.xxl.job.core.biz.model.RegistryParam;
 import com.xxl.job.core.biz.model.ReturnT;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author xuxueli 2017-07-27 21:52:49
@@ -42,5 +43,11 @@ public interface AdminBiz {
      * @return
      */
     public ReturnT<String> registryRemove(RegistryParam registryParam);
+
+    /**
+     * 查询所有任务服务
+     * @return
+     */
+    public ReturnT<Map<String,Object>> initXxlJobInject();
 
 }
