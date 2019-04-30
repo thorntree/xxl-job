@@ -3,6 +3,7 @@ package com.xxl.job.core.executor;
 import com.xxl.job.core.biz.AdminBiz;
 import com.xxl.job.core.biz.ExecutorBiz;
 import com.xxl.job.core.biz.impl.ExecutorBizImpl;
+import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.log.XxlJobFileAppender;
 import com.xxl.job.core.thread.ExecutorRegistryThread;
@@ -21,6 +22,10 @@ import com.xxl.rpc.util.IpUtil;
 import com.xxl.rpc.util.NetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,6 +67,33 @@ public class XxlJobExecutor  {
         this.logRetentionDays = logRetentionDays;
     }
 
+    public String getAdminAddresses() {
+        return adminAddresses;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public String getLogPath() {
+        return logPath;
+    }
+
+    public int getLogRetentionDays() {
+        return logRetentionDays;
+    }
 
     // ---------------------- start + stop ----------------------
     public void start() throws Exception {
@@ -71,7 +103,6 @@ public class XxlJobExecutor  {
 
         // init invoker, admin-client
         initAdminBizList(adminAddresses, accessToken);
-
 
         // init JobLogFileCleanThread
         JobLogFileCleanThread.getInstance().start(logRetentionDays);

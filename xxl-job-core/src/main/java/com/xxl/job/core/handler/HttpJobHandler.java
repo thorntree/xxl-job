@@ -5,6 +5,7 @@ import com.xxl.job.core.log.XxlJobLogger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -13,7 +14,9 @@ import java.net.URL;
  *
  * @author xuxueli 2018-09-16 03:48:34
  */
-public class HttpJobHandler extends IJobHandler {
+public class HttpJobHandler extends IJobHandler implements Serializable {
+
+    private static final long serialVersionUID = -7051160930771841916L;
 
     @Override
     public ReturnT<String> execute(String param) throws Exception {
@@ -33,7 +36,7 @@ public class HttpJobHandler extends IJobHandler {
             connection.setUseCaches(false);
             connection.setReadTimeout(5 * 1000);
             connection.setConnectTimeout(3 * 1000);
-            connection.setRequestProperty("X-Auth-Token", "imoHPpt6PjAHXAp-tuh3CCz3pB4a1yyNe8bgfb2GnWY-");
+            //connection.setRequestProperty("X-Auth-Token", "imoHPpt6PjAHXAp-tuh3CCz3pB4a1yyNe8bgfb2GnWY-");
             connection.setRequestProperty("connection", "Keep-Alive");
             connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             connection.setRequestProperty("Accept-Charset", "application/json;charset=UTF-8");

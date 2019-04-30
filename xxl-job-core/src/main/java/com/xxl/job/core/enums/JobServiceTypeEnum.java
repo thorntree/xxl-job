@@ -1,8 +1,8 @@
 package com.xxl.job.core.enums;
 
 public enum JobServiceTypeEnum {
-    DUBBO_SERVICE(0,"dubbo"),
-    HTTP_SERVICE(1,"http");
+    DUBBO_SERVICE(0,"com.xxl.job.core.handler.DubboJobHandler"),
+    HTTP_SERVICE(1,"com.xxl.job.core.handler.HttpJobHandler");
     private Integer num;
     private String desc;
 
@@ -25,5 +25,12 @@ public enum JobServiceTypeEnum {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+    public static String getDesc(Integer type){
+        if(1==type){
+            return HTTP_SERVICE.getDesc();
+        }else{
+            return DUBBO_SERVICE.getDesc();
+        }
     }
 }

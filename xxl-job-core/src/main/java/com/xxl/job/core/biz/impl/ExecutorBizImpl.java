@@ -6,6 +6,7 @@ import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.biz.model.TriggerParam;
 import com.xxl.job.core.enums.ExecutorBlockStrategyEnum;
 import com.xxl.job.core.executor.XxlJobExecutor;
+import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 import com.xxl.job.core.glue.GlueFactory;
 import com.xxl.job.core.glue.GlueTypeEnum;
 import com.xxl.job.core.handler.IJobHandler;
@@ -15,8 +16,10 @@ import com.xxl.job.core.log.XxlJobFileAppender;
 import com.xxl.job.core.thread.JobThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by xuxueli on 17/3/1.
@@ -171,4 +174,23 @@ public class ExecutorBizImpl implements ExecutorBiz {
         return pushResult;
     }
 
+
+    private static ApplicationContext applicationContext= XxlJobSpringExecutor.getApplicationContext();
+
+    @Override
+    public ReturnT<String> saveXxlJobInject(Map<String,Object> map) {
+        String className = (String)map.get("className");
+        String beanId=(String)map.get("beanId");
+        XxlJobSpringExecutor.registerBean(beanId,className);
+        Object bean =XxlJobSpringExecutor.getBean(beanId, applicationContext);
+        IJobHandler handler = (IJobHandler) bean;
+        XxlJobExecutor.registJobHandler(beanId, handler);
+        return new ReturnT();
+    }
+
+    @Override
+    public ReturnT<String> removeXxlJobInject(String beanId) {
+        XxlJobSpringExecutor.removeBean(beanId,applicationContext);
+        return new ReturnT();
+    }
 }

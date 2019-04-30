@@ -8,10 +8,13 @@ package com.xxl.job.core.handler;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.log.XxlJobLogger;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
 
-public class DubboJobHandler extends IJobHandler {
+public class DubboJobHandler extends IJobHandler implements Serializable {
+
+    private static final long serialVersionUID = -479630627743999152L;
 
     @Override
     public ReturnT<String> execute(String param){

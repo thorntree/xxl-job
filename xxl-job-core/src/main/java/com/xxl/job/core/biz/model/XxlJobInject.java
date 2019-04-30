@@ -1,12 +1,15 @@
-package com.xxl.job.admin.core.model;
+package com.xxl.job.core.biz.model;
 
+
+import java.io.Serializable;
 
 /**
  * @Author: liuxiaoshuai
  * @Date: 2019/4/19
  * @Description: 任务服务注入到
  */
-public class XxlJobInject{
+public class XxlJobInject implements Serializable {
+    private static final long serialVersionUID = 105795204786629529L;
     private Integer id;
     //执行器id
     private Integer groupId;

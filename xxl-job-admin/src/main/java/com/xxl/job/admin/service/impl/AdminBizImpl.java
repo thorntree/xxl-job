@@ -1,13 +1,10 @@
 package com.xxl.job.admin.service.impl;
 
-import com.xxl.job.admin.core.conf.XxlJobAdminConfig;
 import com.xxl.job.admin.core.model.XxlJobInfo;
-import com.xxl.job.admin.core.model.XxlJobInject;
 import com.xxl.job.admin.core.model.XxlJobLog;
 import com.xxl.job.admin.core.thread.JobTriggerPoolHelper;
 import com.xxl.job.admin.core.trigger.TriggerTypeEnum;
 import com.xxl.job.admin.core.util.I18nUtil;
-import com.xxl.job.admin.dao.XxlJobGroupJobServiceDao;
 import com.xxl.job.admin.dao.XxlJobInfoDao;
 import com.xxl.job.admin.dao.XxlJobLogDao;
 import com.xxl.job.admin.dao.XxlJobRegistryDao;
@@ -16,7 +13,6 @@ import com.xxl.job.core.biz.model.HandleCallbackParam;
 import com.xxl.job.core.biz.model.RegistryParam;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.enums.JobServiceTypeEnum;
-import com.xxl.job.core.handler.DubboJobHandler;
 import com.xxl.job.core.handler.IJobHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -43,8 +39,6 @@ public class AdminBizImpl implements AdminBiz {
     private XxlJobInfoDao xxlJobInfoDao;
     @Resource
     private XxlJobRegistryDao xxlJobRegistryDao;
-    @Resource
-    private XxlJobGroupJobServiceDao xxlJobGroupJobServiceDao;
 
 
     @Override
@@ -138,13 +132,16 @@ public class AdminBizImpl implements AdminBiz {
     }
     @Override
     public ReturnT<Map<String, Object>> initXxlJobInject() {
-        List<XxlJobInject> jobInjectByJobHandlerName = xxlJobGroupJobServiceDao.getJobInjectByJobHandlerName(new XxlJobInject());
+        int serverTypeDubbo=JobServiceTypeEnum.DUBBO_SERVICE.getNum();
+        int serverTypeHttp=JobServiceTypeEnum.HTTP_SERVICE.getNum();
+        List<XxlJobInfo> byServerTypeDubbo = xxlJobInfoDao.findByServerType(serverTypeDubbo,null);
+        List<XxlJobInfo> byServerTypeHttp = xxlJobInfoDao.findByServerType(serverTypeHttp,null);
         ConcurrentHashMap map=new ConcurrentHashMap();
-        for(XxlJobInject xxlJobInject:jobInjectByJobHandlerName){
-            if(JobServiceTypeEnum.DUBBO_SERVICE.getNum().equals(xxlJobInject.getType())){
-                DubboJobHandler dubboJobHandler=new DubboJobHandler();
-                map.put(xxlJobInject.getJobhandlerName(),dubboJobHandler);
-            }
+        for(XxlJobInfo xxlJobInject:byServerTypeDubbo){
+            map.put(xxlJobInject.getExecutorHandler(),JobServiceTypeEnum.DUBBO_SERVICE.getDesc());
+        }
+        for(XxlJobInfo xxlJobInject:byServerTypeHttp){
+                map.put(xxlJobInject.getExecutorHandler(),JobServiceTypeEnum.HTTP_SERVICE.getDesc());
         }
         return new ReturnT<Map<String, Object>>(map);
     }

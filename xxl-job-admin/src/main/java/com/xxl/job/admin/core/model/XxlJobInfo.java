@@ -1,5 +1,6 @@
 package com.xxl.job.admin.core.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,8 +8,9 @@ import java.util.Date;
  *
  * @author xuxueli  2016-1-12 18:25:49
  */
-public class XxlJobInfo {
-	
+public class XxlJobInfo implements Serializable {
+
+	private static final long serialVersionUID = -6766073585813729379L;
 	private int id;				// 主键ID	    (JobKey.name)
 	
 	private int jobGroup;		// 执行器主键ID	(JobKey.group)
@@ -37,7 +39,25 @@ public class XxlJobInfo {
 	
 	// copy from quartz
 	private String jobStatus;		// 任务状态 【base on quartz】
+	private Integer serverType;
 
+	private String address;
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public Integer getServerType() {
+		return serverType;
+	}
+
+	public void setServerType(Integer serverType) {
+		this.serverType = serverType;
+	}
 
 	public int getId() {
 		return id;

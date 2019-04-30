@@ -37,4 +37,7 @@ public interface XxlJobInfoDao {
 
 	public int findAllCount();
 
+	public List<XxlJobInfo> findByServerType(@Param("serverType") int serverType
+	,@Param("glueType") String glueType);
+
 }
