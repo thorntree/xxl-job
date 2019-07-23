@@ -19,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -127,10 +128,12 @@ public class XxlJobSpringExecutor extends XxlJobExecutor implements ApplicationC
                 if(mapReturnT!=null && ReturnT.SUCCESS_CODE==mapReturnT.getCode()){
                     Map<String, Object> content = mapReturnT.getContent();
                     for(Map.Entry entry:content.entrySet()){
-                        registerBean(entry.getKey().toString(),entry.getValue().toString());
-                        Object bean =getBean(entry.getKey().toString(), applicationContext);
-                        IJobHandler handler = (IJobHandler) bean;
-                        registJobHandler(entry.getKey().toString(), handler);
+                        if(entry!=null && !StringUtils.isEmpty(entry.getKey()) && !StringUtils.isEmpty(entry.getValue()) ){
+                            registerBean(entry.getKey().toString(),entry.getValue().toString());
+                            Object bean =getBean(entry.getKey().toString(), applicationContext);
+                            IJobHandler handler = (IJobHandler) bean;
+                            registJobHandler(entry.getKey().toString(), handler);
+                        }
                     }
                 }
             }
