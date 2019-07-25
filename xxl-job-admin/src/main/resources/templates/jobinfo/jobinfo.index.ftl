@@ -175,8 +175,15 @@
                         <div class="col-sm-4"><input type="text" class="form-control" name="alarmEmail" placeholder="${I18n.jobinfo_field_alarmemail_placeholder}" maxlength="100" ></div>
 					</div>
                     <div class="form-group">
+                        <label for="firstname" class="col-sm-2 control-label">${I18n.jobinfo_field_server_type}<font color="red">*</font></label>
+                        <div class="col-sm-4">
+                            <select class="form-control serverType" name="serverType">
+                                <option value=1 >HTTP</option>
+                                <option value=0 >DUBBO</option>
+                            </select>
+                        </div>
                         <label for="firstname" class="col-sm-2 control-label">${I18n.jobinfo_field_executorparam}<font color="black">*</font></label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-4">
                             <textarea class="textarea form-control" name="executorParam" placeholder="${I18n.system_please_input}${I18n.jobinfo_field_executorparam}" maxlength="512" style="height: 63px; line-height: 1.2;"></textarea>
 						</div>
                     </div>
@@ -371,8 +378,15 @@ exit 0
                         <div class="col-sm-4"><input type="text" class="form-control" name="alarmEmail" placeholder="${I18n.jobinfo_field_alarmemail_placeholder}" maxlength="100" ></div>
                     </div>
                     <div class="form-group">
-                        <label for="firstname" class="col-sm-2 control-label">${I18n.jobinfo_field_executorparam}<font color="black">*</font></label>
-                        <div class="col-sm-10">
+                        <label for="firstname" class="col-sm-2 control-label">${I18n.jobinfo_field_server_type}<font color="red">*</font></label>
+                        <div class="col-sm-4">
+                            <select class="form-control serverType" name="serverType">
+                                <option value=1 >HTTP</option>
+                                <option value=0 >DUBBO</option>
+                            </select>
+                        </div>
+                        <label for="lastname" class="col-sm-2 control-label">${I18n.jobinfo_field_executorparam}<font color="black">*</font></label>
+                        <div class="col-sm-4">
                             <textarea class="textarea form-control" name="executorParam" placeholder="${I18n.system_please_input}${I18n.jobinfo_field_executorparam}" maxlength="512" style="height: 63px; line-height: 1.2;"></textarea>
 						</div>
                     </div>

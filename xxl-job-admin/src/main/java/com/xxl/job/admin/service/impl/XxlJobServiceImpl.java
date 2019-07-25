@@ -6,18 +6,18 @@ import com.xxl.job.admin.core.cron.CronExpression;
 import com.xxl.job.admin.core.route.ExecutorRouteStrategyEnum;
 import com.xxl.job.admin.core.thread.JobScheduleHelper;
 import com.xxl.job.admin.core.util.I18nUtil;
-import com.xxl.job.admin.dao.XxlJobGroupDao;
-import com.xxl.job.admin.dao.XxlJobInfoDao;
-import com.xxl.job.admin.dao.XxlJobLogDao;
-import com.xxl.job.admin.dao.XxlJobLogGlueDao;
+import com.xxl.job.admin.dao.*;
 import com.xxl.job.admin.service.XxlJobService;
+import com.xxl.job.core.biz.ExecutorBiz;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.enums.ExecutorBlockStrategyEnum;
+import com.xxl.job.core.enums.JobServiceTypeEnum;
 import com.xxl.job.core.glue.GlueTypeEnum;
 import com.xxl.job.core.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
@@ -84,12 +84,21 @@ public class XxlJobServiceImpl implements XxlJobService {
 		if (GlueTypeEnum.BEAN==GlueTypeEnum.match(jobInfo.getGlueType()) && (jobInfo.getExecutorHandler()==null || jobInfo.getExecutorHandler().trim().length()==0) ) {
 			return new ReturnT<String>(ReturnT.FAIL_CODE, (I18nUtil.getString("system_please_input")+"JobHandler") );
 		}
+		if (GlueTypeEnum.BEAN==GlueTypeEnum.match(jobInfo.getGlueType()) && StringUtils.isBlank(jobInfo.getExecutorParam())) {
+			return new ReturnT<String>(ReturnT.FAIL_CODE, (I18nUtil.getString("system_please_input")+"ExecutorParam") );
+		}
 
 		// fix "\r" in shell
 		if (GlueTypeEnum.GLUE_SHELL==GlueTypeEnum.match(jobInfo.getGlueType()) && jobInfo.getGlueSource()!=null) {
 			jobInfo.setGlueSource(jobInfo.getGlueSource().replaceAll("\r", ""));
 		}
-
+		//
+		if(GlueTypeEnum.BEAN==GlueTypeEnum.match(jobInfo.getGlueType())){
+			List<XxlJobInfo> byServerType = xxlJobInfoDao.findByServerType(-2, jobInfo.getExecutorHandler());
+			if(!CollectionUtils.isEmpty(byServerType)){
+				return new ReturnT<String>(ReturnT.FAIL_CODE, "handler名称重复");
+			}
+		}
 		// ChildJobId valid
 		if (jobInfo.getChildJobId()!=null && jobInfo.getChildJobId().trim().length()>0) {
 			String[] childJobIds = jobInfo.getChildJobId().split(",");
@@ -120,7 +129,26 @@ public class XxlJobServiceImpl implements XxlJobService {
 		if (jobInfo.getId() < 1) {
 			return new ReturnT<String>(ReturnT.FAIL_CODE, (I18nUtil.getString("jobinfo_field_add")+I18nUtil.getString("system_fail")) );
 		}
+		//添加任务服务
+        if(GlueTypeEnum.BEAN==GlueTypeEnum.match(jobInfo.getGlueType())){
+			List<String> registryList = group.getRegistryList();
+			for(String str:registryList){
+				Map<String,Object> map=new HashMap<>();
+				map.put("beanId",jobInfo.getExecutorHandler());
+				if(JobServiceTypeEnum.DUBBO_SERVICE.getNum().equals(jobInfo.getServerType())){
+					map.put("className",JobServiceTypeEnum.DUBBO_SERVICE.getDesc());
+				} else if(JobServiceTypeEnum.HTTP_SERVICE.getNum().equals(jobInfo.getServerType())){
+					map.put("className",JobServiceTypeEnum.HTTP_SERVICE.getDesc());
+				}
+				try {
+					ExecutorBiz executorBiz = XxlJobDynamicScheduler.getExecutorBiz(str);
+					executorBiz.saveXxlJobInject(map);
+				} catch (Exception e){
+					e.printStackTrace();
+				}
+			}
 
+	    }
 		return new ReturnT<String>(String.valueOf(jobInfo.getId()));
 	}
 
@@ -135,7 +163,6 @@ public class XxlJobServiceImpl implements XxlJobService {
 
 	@Override
 	public ReturnT<String> update(XxlJobInfo jobInfo) {
-
 		// valid
 		if (!CronExpression.isValidExpression(jobInfo.getJobCron())) {
 			return new ReturnT<String>(ReturnT.FAIL_CODE, I18nUtil.getString("jobinfo_field_cron_unvalid") );
@@ -205,6 +232,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 			}
 		}
 
+		XxlJobInfo oldJobInfo=exists_jobInfo;
 		exists_jobInfo.setJobGroup(jobInfo.getJobGroup());
 		exists_jobInfo.setJobCron(jobInfo.getJobCron());
 		exists_jobInfo.setJobDesc(jobInfo.getJobDesc());
@@ -220,6 +248,26 @@ public class XxlJobServiceImpl implements XxlJobService {
 		exists_jobInfo.setTriggerNextTime(nextTriggerTime);
         xxlJobInfoDao.update(exists_jobInfo);
 
+			if(GlueTypeEnum.BEAN==GlueTypeEnum.match(oldJobInfo.getGlueType())){
+				List<String> registryList = jobGroup.getRegistryList();
+				for(String str:registryList){
+					Map<String,Object> map=new HashMap<>();
+					map.put("beanId",exists_jobInfo.getExecutorHandler());
+					if(JobServiceTypeEnum.DUBBO_SERVICE.getNum().equals(exists_jobInfo.getServerType())){
+						map.put("className",JobServiceTypeEnum.DUBBO_SERVICE.getDesc());
+					} else if(JobServiceTypeEnum.HTTP_SERVICE.getNum().equals(exists_jobInfo.getServerType())){
+						map.put("className",JobServiceTypeEnum.HTTP_SERVICE.getDesc());
+					}
+					try {
+						ExecutorBiz executorBiz = XxlJobDynamicScheduler.getExecutorBiz(str);
+						executorBiz.removeXxlJobInject(oldJobInfo.getExecutorHandler());
+						executorBiz.saveXxlJobInject(map);
+					} catch (Exception e){
+						e.printStackTrace();
+					}
+				}
+			}
+     
 
 		return ReturnT.SUCCESS;
 	}
@@ -230,6 +278,19 @@ public class XxlJobServiceImpl implements XxlJobService {
 		if (xxlJobInfo == null) {
 			return ReturnT.SUCCESS;
 		}
+		XxlJobGroup group = xxlJobGroupDao.load(xxlJobInfo.getJobGroup());
+		String name = String.valueOf(xxlJobInfo.getId());
+			if(GlueTypeEnum.BEAN==GlueTypeEnum.match(xxlJobInfo.getGlueType())){
+				List<String> registryList = group.getRegistryList();
+				for(String str:registryList){
+					try {
+						ExecutorBiz executorBiz = XxlJobDynamicScheduler.getExecutorBiz(str);
+						executorBiz.removeXxlJobInject(xxlJobInfo.getExecutorHandler());
+					} catch (Exception e){
+						e.printStackTrace();
+					}
+				}
+			}
 
 		xxlJobInfoDao.delete(id);
 		xxlJobLogDao.delete(id);

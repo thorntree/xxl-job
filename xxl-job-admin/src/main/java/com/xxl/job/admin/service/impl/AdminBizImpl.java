@@ -12,6 +12,7 @@ import com.xxl.job.core.biz.AdminBiz;
 import com.xxl.job.core.biz.model.HandleCallbackParam;
 import com.xxl.job.core.biz.model.RegistryParam;
 import com.xxl.job.core.biz.model.ReturnT;
+import com.xxl.job.core.enums.JobServiceTypeEnum;
 import com.xxl.job.core.handler.IJobHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ import javax.annotation.Resource;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author xuxueli 2017-07-27 21:54:20
@@ -134,6 +137,21 @@ public class AdminBizImpl implements AdminBiz {
     public ReturnT<String> registryRemove(RegistryParam registryParam) {
         xxlJobRegistryDao.registryDelete(registryParam.getRegistGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue());
         return ReturnT.SUCCESS;
+    }
+    @Override
+    public ReturnT<Map<String, Object>> initXxlJobInject() {
+        int serverTypeDubbo=JobServiceTypeEnum.DUBBO_SERVICE.getNum();
+        int serverTypeHttp=JobServiceTypeEnum.HTTP_SERVICE.getNum();
+        List<XxlJobInfo> byServerTypeDubbo = xxlJobInfoDao.findByServerType(serverTypeDubbo,null);
+        List<XxlJobInfo> byServerTypeHttp = xxlJobInfoDao.findByServerType(serverTypeHttp,null);
+        ConcurrentHashMap map=new ConcurrentHashMap();
+        for(XxlJobInfo xxlJobInject:byServerTypeDubbo){
+            map.put(xxlJobInject.getExecutorHandler(),JobServiceTypeEnum.DUBBO_SERVICE.getDesc());
+        }
+        for(XxlJobInfo xxlJobInject:byServerTypeHttp){
+                map.put(xxlJobInject.getExecutorHandler(),JobServiceTypeEnum.HTTP_SERVICE.getDesc());
+        }
+        return new ReturnT<Map<String, Object>>(map);
     }
 
 }

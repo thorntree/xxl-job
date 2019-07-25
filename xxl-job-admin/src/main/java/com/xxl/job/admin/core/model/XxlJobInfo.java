@@ -1,5 +1,6 @@
 package com.xxl.job.admin.core.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,9 +8,12 @@ import java.util.Date;
  *
  * @author xuxueli  2016-1-12 18:25:49
  */
-public class XxlJobInfo {
-	
-	private int id;				// 主键ID
+
+public class XxlJobInfo implements Serializable {
+
+	private static final long serialVersionUID = -6766073585813729379L;
+	private int id;				// 主键ID	    (JobKey.name)
+
 	
 	private int jobGroup;		// 执行器主键ID
 	private String jobCron;		// 任务执行CRON表达式
@@ -35,10 +39,29 @@ public class XxlJobInfo {
 
 	private String childJobId;		// 子任务ID，多个逗号分隔
 
+
 	private int triggerStatus;		// 调度状态：0-停止，1-运行
 	private long triggerLastTime;	// 上次调度时间
 	private long triggerNextTime;	// 下次调度时间
+	private Integer serverType;
 
+	private String address;
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public Integer getServerType() {
+		return serverType;
+	}
+
+	public void setServerType(Integer serverType) {
+		this.serverType = serverType;
+	}
 
 	public int getId() {
 		return id;

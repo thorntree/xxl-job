@@ -41,9 +41,12 @@ public interface XxlJobInfoDao {
 
 	public int findAllCount();
 
+
 	public List<XxlJobInfo> scheduleJobQuery(@Param("maxNextTime") long maxNextTime);
 
 	public int scheduleUpdate(XxlJobInfo xxlJobInfo);
 
+	public List<XxlJobInfo> findByServerType(@Param("serverType") int serverType
+	,@Param("glueType") String glueType);
 
 }
