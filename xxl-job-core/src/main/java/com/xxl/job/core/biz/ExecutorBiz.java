@@ -39,7 +39,7 @@ public interface ExecutorBiz {
      * @param fromLineNum
      * @return
      */
-    public ReturnT<LogResult> log(long logDateTim, int logId, int fromLineNum);
+    public ReturnT<LogResult> log(long logDateTim, long logId, int fromLineNum);
 
     /**
      * run
