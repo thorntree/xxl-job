@@ -46,9 +46,9 @@ public class JobFailMonitorHelper {
 				while (!toStop) {
 					try {
 
-						List<Integer> failLogIds = XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().findFailJobLogIds(1000);
+						List<Long> failLogIds = XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().findFailJobLogIds(1000);
 						if (failLogIds!=null && !failLogIds.isEmpty()) {
-							for (int failLogId: failLogIds) {
+							for (long failLogId: failLogIds) {
 
 								// lock log
 								int lockRet = XxlJobAdminConfig.getAdminConfig().getXxlJobLogDao().updateAlarmStatus(failLogId, 0, -1);
@@ -192,7 +192,7 @@ public class JobFailMonitorHelper {
 			}
 		}
 
-		// TODO, custom alarm strategy, such as sms
+		// do something, custom alarm strategy, such as sms
 
 
 		return alarmResult;
